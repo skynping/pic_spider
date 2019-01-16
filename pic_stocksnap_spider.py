@@ -60,21 +60,6 @@ def save_result_mysql():
                 sto_nextPage = sto_result_lists[-1]['nextPage']
                 for result in sto_result_lists[:-1]:
 
-                    # # 标签处理
-                    # sto_tags_lists = result['tags'].split(",")
-                    # global tags_list
-                    # tag_change = False
-                    # tags = ""
-                    # for tag in sto_tags_lists:
-                    #     if tag not in tags_list:
-                    #         tag_change = True
-                    #         tags_list.append(tag.strip())
-                    #     tags += tag.strip() + ","
-                    # print tags
-                    # if tag_change:
-                    #     tag_url = "alter table pic_stocksnap modify tags set(%s" + ",%s" * (len(tags_list)-1) + ")"
-                    #     tag_mysql.all(tag_url,params=tags_list)
-
                     # 存入数据
                     url = "insert ignore into pic_stocksnap(img_id, tags_all,page_views,downloads,favorites,img_width,img_height) values(%s,%s,%s,%s,%s,%s,%s)"
                     params = [result['img_id'],result["tags"],result['page_views'],result['downloads'],result['favorites'],result['img_width'],result['img_height']]
