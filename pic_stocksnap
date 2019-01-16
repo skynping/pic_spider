@@ -1,0 +1,62 @@
+网址：https://stocksnap.io/
+
+下载图片发送post请求：https://stocksnap.io/photo/download
+	post数据：
+		_csrf: //div[@class='equal-columns']//form/input[1]/@value
+		photoId: //div[@class='equal-columns']//form/input[2]/@value
+
+进入下载页： https://stocksnap.io/photo/ + photoId
+
+获取图片分页信息get请求：https://stocksnap.io/api/load-photos/date/desc/ + 页码
+	
+	格式如下： 
+	{
+	"sidebarSortBySelected": "sidebarDateSelected",
+	"sidebarSortOrderSelected": "sidebarDescSelected",
+	"nextPage": false,
+	"results": [{
+		"img_id": "4876CF9B9C",
+		"tags": "laundry, laundromat, waching machines, dryers, carts, clothes, baskets",
+		"page_views": "1.7k",
+		"downloads": 504,
+		"favorites": 9,
+		"img_width": 5301,
+		"img_height": 3534,
+		"adjustedWidth": 420,
+		"favorited": false
+	}， {
+		"img_id": "ACEC27F085",
+		"tags": "old, vintage, book, page, burned, letters, wood",
+		"page_views": "2.1k",
+		"downloads": 549,
+		"favorites": 34,
+		"img_width": 4272,
+		"img_height": 2848,
+		"adjustedWidth": 420,
+		"favorited": false
+		}]
+	}
+
+
+create table pic_stocksnap(
+sto_id int(11) primary_key auto_increment not null,
+img_id varchar(40),
+page_views varchar(40),
+downloads int(10),
+favorites int(10),
+img_width int(10),
+img_height int(10));
+
+CREATE TABLE `pic_stocksnap` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `img_id` varchar(200) DEFAULT NULL,
+  `page_views` varchar(200) DEFAULT NULL,
+  `tags_all` varchar(300) DEFAULT NULL,
+  `downloads` int(11) DEFAULT NULL,
+  `favorites` int(11) DEFAULT NULL,
+  `img_width` int(11) DEFAULT NULL,
+  `img_height` int(11) DEFAULT NULL,
+  `downloaded` bool DEFAULT false,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `img_id` (`img_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
