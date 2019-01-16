@@ -60,3 +60,9 @@ CREATE TABLE `pic_stocksnap` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `img_id` (`img_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+create table sto_csrf (
+    id int primary key suto_increment not null,
+    csrf varchar(200) default null,
+    img_id varchar(200) default null,
+    foreign key(img_id) references pic_stocksnap(img_id));

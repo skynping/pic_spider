@@ -2,6 +2,7 @@
 
 from pic_getIndexHtml import page_spider
 from pic_mysql_help import MysqlHelp
+from lxml import etree
 import threading
 import time
 import random
@@ -9,7 +10,7 @@ import json
 import Queue
 
 queue = Queue.Queue(maxsize=20)
-tags_list = []
+csrf_queue = Queue.Queue(maxsize=100)
 
 def sto_page():
     # 默认有下一页
@@ -50,7 +51,6 @@ def save_result_mysql():
     sto_nextPage = True
     page_num = 0
     mysql = MysqlHelp(db="sky_pic", host="localhost", port=3307)
-    tag_mysql = MysqlHelp(db="sky_pic", host="localhost", port=3307)
     while sto_nextPage:
         while not queue.empty():
             try:
@@ -59,27 +59,87 @@ def save_result_mysql():
                 sto_result_lists = queue.get()
                 sto_nextPage = sto_result_lists[-1]['nextPage']
                 for result in sto_result_lists[:-1]:
-
                     # 存入数据
                     url = "insert ignore into pic_stocksnap(img_id, tags_all,page_views,downloads,favorites,img_width,img_height) values(%s,%s,%s,%s,%s,%s,%s)"
                     params = [result['img_id'],result["tags"],result['page_views'],result['downloads'],result['favorites'],result['img_width'],result['img_height']]
                     mysql.cud(url,params=params)
-
                 print("<第" + str(page_num) + "页储存成功>")
-                print "-"*5 + str(tags_list) + "-"*5
             except:
                 print(str(page_num) + "储存失败")
                 page_num -= 1
         else:
             time.sleep(10)
 
-def main():
-    sto_page_thread = threading.Thread(target=sto_page)
-    sto_result_thread = threading.Thread(target=save_result_mysql)
+def sto_load():
+    mysql = MysqlHelp(db="sky_pic", host="localhost", port=3307)
+    # search_url = "select img_id from pic_stocksnap where downloads > 10"
+    search_url = "select img_id from pic_stocksnap"
+    download_ids = mysql.all(search_url)
+    load_num = 0
+    for id in download_ids:
+        if not queue.full():
+            try:
+                load_num += 1
+                print("加载 <" + str(load_num) + ">")
+                # load_url = "https://stocksnap.io/photo/" + str(id).replace("(","").replace(")","").replace("u","").replace(",","").replace("'","")
+                load_url = "https://stocksnap.io/photo/" + str(id[0])
+                load_spider = page_spider(url=load_url)
 
-    sto_page_thread.start()
+                load_text =  load_spider.get()['text']
+                # 转换成xpath格式
+                load_html = etree.HTML(load_text)
+                # 筛选
+                csrf = load_html.xpath("//div[@class='equal-columns']//form/input[1]/@value")[0]
+                # 存入队列
+                csrf_queue.put({"load_id":str(id[0]),"csrf":csrf,"load_num":str(load_num)})
+                print("<" + str(load_num) + ">加载结束")
+            except:
+                print("photoid加载异常")
+        else:
+            time.sleep(2)
+
+def save_csrf_mysql():
+    # 初始化第二次是否为空
+    is_second = False
+    mysql = MysqlHelp(db="sky_pic", host="localhost", port=3307)
+    while True:
+        if not csrf_queue.empty():
+            try:
+                is_second = False
+                photo_dict = csrf_queue.get()
+
+                print("*" + "存 "+ photo_dict['load_num'])
+                csrf_url = "insert ignore into sto_csrf(csrf,img_id) values(%s,%s)"
+                params = [str(photo_dict['csrf']),photo_dict['load_id']]
+                mysql.cud(csrf_url,params)
+
+                print("*" + photo_dict['load_num'] + "存入完成")
+            except:
+                print("csrf存入异常")
+        else:
+            if is_second:
+                break
+            time.sleep(35)
+            # 如果20s后queue还为空结束线程
+            is_second = True
+
+
+
+
+
+def main():
+    # sto_page_thread = threading.Thread(target=sto_page)
+    # sto_result_thread = threading.Thread(target=save_result_mysql)
+    #
+    # sto_page_thread.start()
+    # time.sleep(10)
+    # sto_result_thread.start()
+
+    sto_load_thread = threading.Thread(target=sto_load)
+    save_csrf_mysql_thread = threading.Thread(target=save_csrf_mysql)
+    sto_load_thread.start()
     time.sleep(10)
-    sto_result_thread.start()
+    save_csrf_mysql_thread.start()
 
 if __name__ == "__main__":
     main()
