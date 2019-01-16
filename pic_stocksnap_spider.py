@@ -27,7 +27,7 @@ def sto_page():
                 page_num += 1
                 print("=加载第" + str(page_num) + "页=")
                 # 拼组分页url
-                url = "https://stocksnap.io/api/load-photos/date/desc/" + str(page_num)
+                url = "https://stocksnap.io/api/load-photos/downloads/desc/" + str(page_num)
                 # 发送get请求获取分页数据
                 sto_page_spider = page_spider(url=url)
                 sto_page_html = sto_page_spider.get()
@@ -101,11 +101,11 @@ def save_result_mysql():
 
 
 def main():
-    # sto_page_thread = threading.Thread(target=sto_page)
-    # sto_result_thread = threading.Thread(target=save_result_mysql)
-    # sto_page_thread.start()
-    # time.sleep(10)
-    # sto_result_thread.start()
+    sto_page_thread = threading.Thread(target=sto_page)
+    sto_result_thread = threading.Thread(target=save_result_mysql)
+    sto_page_thread.start()
+    time.sleep(10)
+    sto_result_thread.start()
 
     # time.sleep(60)
     # sto_load_thread = threading.Thread(target=sto_load)
