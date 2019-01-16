@@ -128,17 +128,17 @@ def save_csrf_mysql():
 
 
 def main():
-    # sto_page_thread = threading.Thread(target=sto_page)
-    # sto_result_thread = threading.Thread(target=save_result_mysql)
-    #
-    # sto_page_thread.start()
-    # time.sleep(10)
-    # sto_result_thread.start()
+    sto_page_thread = threading.Thread(target=sto_page)
+    sto_result_thread = threading.Thread(target=save_result_mysql)
+    sto_page_thread.start()
+    time.sleep(10)
+    sto_result_thread.start()
 
+    time.sleep(60)
     sto_load_thread = threading.Thread(target=sto_load)
     save_csrf_mysql_thread = threading.Thread(target=save_csrf_mysql)
     sto_load_thread.start()
-    time.sleep(10)
+    time.sleep(30)
     save_csrf_mysql_thread.start()
 
 if __name__ == "__main__":

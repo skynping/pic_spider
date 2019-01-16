@@ -31,7 +31,7 @@ class MysqlHelp:
             self.conn.commit()
 
             self.close()
-            print u"设置成功"
+            # print u"设置成功"
         except Exception,e:
             print e.message
 
