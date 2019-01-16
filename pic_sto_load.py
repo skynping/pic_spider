@@ -172,8 +172,6 @@ def main():
         sto.load(csrf,id,num)
         print "=="+id + " download over" + "=="
 
-        # break
 
 if __name__ == "__main__":
     main()
-    # test()
