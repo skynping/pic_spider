@@ -38,14 +38,7 @@
 	}
 
 
-create table pic_stocksnap(
-sto_id int(11) primary_key auto_increment not null,
-img_id varchar(40),
-page_views varchar(40),
-downloads int(10),
-favorites int(10),
-img_width int(10),
-img_height int(10));
+
 
 CREATE TABLE `pic_stocksnap` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -62,7 +55,23 @@ CREATE TABLE `pic_stocksnap` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 create table sto_csrf (
-    id int primary key suto_increment not null,
+    id int primary key auto_increment not null,
     csrf varchar(200) default null,
     img_id varchar(200) default null,
+    UNIQUE KEY `img_id` (`img_id`),
     foreign key(img_id) references pic_stocksnap(img_id));
+
+
+
+
+accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+accept-encoding: gzip, deflate, br
+accept-language: zh-CN,zh;q=0.9
+cache-control: max-age=0
+content-length: 61
+content-type: application/x-www-form-urlencoded
+cookie: __cfduid=dec1fafd2cdc925b1bb9601463f5083631547627168; _csrf=Ba5YQYnk8E_Et1sLT-xWOw_V; _ga=GA1.2.408303191.1547627176; _gid=GA1.2.1848125566.1547627176; _omappvp=C3NFshqoDF1V82KXk0G3XrlDO8tFHwrapB8Obm7vH8nFLqCQQvilYe2tw9dipq880ZffQtzYw7EXnaSMnE9DVxIlFPXnYcoG; photoViews=LWSE2FEO65%2C08YYDJEUCY%2C0B0ML69LXH; _omappvs=1547627319584; _gat=1
+origin: https://stocksnap.io
+referer: https://stocksnap.io/photo/0B0ML69LXH
+upgrade-insecure-requests: 1
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36

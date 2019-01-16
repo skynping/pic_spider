@@ -1,19 +1,18 @@
-# coding: utf-8
+#coding: utf-8
 
-import requests
-import urllib2
+from pic_getIndexHtml import page_spider
+from lxml import etree
+from pic_mysql_help import MysqlHelp
+import time
 import random
+import requests
+import os
 
-# 发送请求获取html
-class page_spider:
-    def __init__(self,url,params=None,data=None):
-        self.url = url
-        self.params = params
-        self.data = data
+class sto_load:
+    def __init__(self,):
         self.headers = self.__headers()
 
     def __headers(self):
-
         headers = [
             # safari 5.1 – MAC
             "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50",
@@ -111,18 +110,70 @@ class page_spider:
 
         ]
         num = random.randint(0,len(headers)-1)
-        return {"User-Agent":headers[num]}
+        return headers[num]
 
-    def get(self):
-        response = requests.get(url=self.url,params=self.params,headers=self.headers)
-        # 返回网页源码和响应状态码
-        return {"text":response.text,"url":response.url,"encoding":response.encoding,"status_code":response.status_code}
+    def load(self,csrf,photoId,num):
+        url = 'https://stocksnap.io/photo/download'
+        # pre_data = {'_csrf': 'OB1nHn4t-2koKPWonzGFKpK-cn368KZKuSJI', 'photoId': '3MRNL2SKAJ'}
+        pre_data = {'_csrf': csrf, 'photoId': photoId}
+        headers = {
+            'cookie':'__cfduid=dec1fafd2cdc925b1bb9601463f5083631547627168; _csrf=Ba5YQYnk8E_Et1sLT-xWOw_V; _ga=GA1.2.408303191.1547627176; _gid=GA1.2.1848125566.1547627176; _omappvp=C3NFshqoDF1V82KXk0G3XrlDO8tFHwrapB8Obm7vH8nFLqCQQvilYe2tw9dipq880ZffQtzYw7EXnaSMnE9DVxIlFPXnYcoG; photoDownloads=0B0ML69LXH%2C6Y5SVWDPHG%2CORQQTOGWRO%2CCCKYDDOYQ9; _gat=1; photoViews=LWSE2FEO65%2C08YYDJEUCY%2C0B0ML69LXH%2C6Y5SVWDPHG%2CORQQTOGWRO%2CCCKYDDOYQ9%2CVQT82JJSPU',
+            'user-agent': self.headers,
+        }
+        reponse = requests.post(url, data=pre_data, headers=headers, stream=True)
+        file = reponse.content
+        print reponse.status_code
+        with open("./pic_sto/"+"pic_" + str(num) + "_" + photoId + ".jpg", "wb") as f:
+            f.write(file)
 
-    def post(self):
-        response = requests.post(url=self.url,data=self.data,headers=self.headers)
-        return {"text":response.text,"url":response.url,"encoding":response.encoding,"status_code":response.status_code}
+    @classmethod
+    def makedir(self, filepath):
+        isExists = os.path.exists(filepath)
+        if isExists:
+            return False
+        else:
+            os.makedirs(filepath)
+            return True
 
-    # 适合二进制文件下载
-    def  bin_file(self):
-        request = urllib2.Request(self.url, data=self.data, headers=self.headers)
-        return urllib2.urlopen(request).read()
+    def get_scrf(self,id):
+        time.sleep(random.randint(1, 3))
+        load_url = "https://stocksnap.io/photo/" + id
+        load_spider = page_spider(url=load_url)
+
+        load_text = load_spider.get()['text']
+        # 转换成xpath格式
+        load_html = etree.HTML(load_text)
+        # 筛选
+        csrf = load_html.xpath("//div[@class='equal-columns']//form/input[1]/@value")[0]
+        return csrf.strip().encode("utf-8")
+
+    # 获取id列表
+    def get_id(self,downloads):
+        mysql = MysqlHelp(db="sky_pic", host="localhost", port=3307)
+        url = "select img_id from pic_stocksnap where downloads > %s"
+        params = [downloads]
+        return mysql.all(url,params=params)
+
+def test():
+    sto = sto_load()
+    sto.load('rQWXtAp5-t8cFMjxoFcNQZHsziBfh8AA3zFA','XHT8C9KTXD')
+
+def main():
+    # downloads = str(input("保存下载量至少为："))
+    downloads = "0"
+    num = 0
+    sto_load.makedir("./pic_sto")
+    sto = sto_load()
+    id_lists = sto.get_id(downloads)
+    csrf = 'rQWXtAp5-t8cFMjxoFcNQZHsziBfh8AA3zFA'
+    for id, in id_lists:
+        num += 1
+        print "==" + id + " downloading" + "=="
+        sto.load(csrf,id,num)
+        print "=="+id + " download over" + "=="
+
+        # break
+
+if __name__ == "__main__":
+    main()
+    # test()
