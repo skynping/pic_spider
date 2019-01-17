@@ -33,7 +33,8 @@ class MysqlHelp:
             self.close()
             # print u"设置成功"
         except Exception,e:
-            print e.message
+            # print e.message
+            pass
 
     # 查询
     def all(self,sql, params=[]):
@@ -46,7 +47,8 @@ class MysqlHelp:
             self.close()
             return result
         except Exception, e:
-            print e.message
+            # print e.message
+            pass
 
 def main():
     while True:
