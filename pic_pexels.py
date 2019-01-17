@@ -11,15 +11,18 @@ import Queue
 import requests
 import re
 import io
+import warnings
 
-queue = Queue.Queue(maxsize=200)
+# 忽略warning
+warnings.filterwarnings("ignore")
+queue = Queue.Queue(maxsize=500)
 color_queue = Queue.Queue(maxsize=1)
 
 def sort():
     sort_list = []
     f = io.open("pic_pex_sorts.txt", "r")
     for sort in f.readlines():
-        sort_list.append(sort.replace("\n", ""))
+        sort_list.append(sort.replace("\n", "").strip().replace(" ","%20"))
     return sort_list
 
 def headers():
@@ -129,40 +132,50 @@ def headers():
 
 # 获取最大页码
 def get_maxnum(color):
-    url = "https://www.pexels.com/search/color:%20" + color + "/?page=3&seed=2019-01-16+08%3A39%3A17++0000&format=js&seed=2019-01-16%2008:39:17%20+0000"
+    # url = "https://www.pexels.com/search/color:%20" + color + "/?page=3&seed=2019-01-16+08%3A39%3A17++0000&format=js&seed=2019-01-16%2008:39:17%20+0000"
+    url = "https://www.pexels.com/search/" + color + "/?page=6&seed=2019-01-17+09%3A57%3A27++0000&format=js&seed=2019-01-17%2009:57:27%20+0000"
     maxnum_res = requests.get(url,headers=headers())
     if maxnum_res.status_code == 200:
         maxnum_text = maxnum_res.text
         maxnum = re.findall("[\s\S]*totalPages:(.*?),[\s\S]*?",maxnum_text.split("infiniteScrollingAppender.appe")[0])
         return int(maxnum[0])
     else:
-        return 100
+        return
 
-def get_first_page(url):
+def get_first_page(url,color):
     page_content = requests.get(url, headers=headers())
-    if page_content.status_code == 200:
-        text_lists = page_content.text.split("download")[1:]
-        for text in text_lists:
-            load_url = text.split("href=\"")[1].split("\"")[0].replace("amp;", "")
-            while True:
-                if not queue.full():
-                    queue.put(load_url)
-                    break
-                else:
-                    time.sleep(1)
+    try:
+        if page_content.status_code == 200:
+            text_lists = page_content.text.split("download")[1:]
+            for text in text_lists:
+                load_url = text.split("href=\"")[1].split("\"")[0].replace("amp;", "")
+                while True:
+                    if not queue.full():
+                        # print [color,load_url]
+                        queue.put([load_url,color])
+                        break
+                    else:
+                        time.sleep(1)
+    except Exception,e:
+        print("157 lines error")
+        print e.message
 
-def get_second_end_page(url):
+def get_second_end_page(url,color):
     page_content = requests.get(url, headers=headers())
-    if page_content.status_code == 200:
-        text_lists =  page_content.text.split("infiniteScrollingAppender.append")[1:]
-        for text in text_lists:
-            load_url = text.split("download")[1].split("href=\\\"")[1].split("\\")[0].replace("amp;","")
-            while True:
-                if not queue.full():
-                    queue.put(load_url)
-                    break
-                else:
-                    time.sleep(1)
+    try:
+        if page_content.status_code == 200:
+            text_lists =  page_content.text.split("infiniteScrollingAppender.append")[1:]
+            for text in text_lists:
+                load_url = text.split("download")[1].split("href=\\\"")[1].split("\\")[0].replace("amp;","")
+                while True:
+                    if not queue.full():
+                        queue.put([load_url,color])
+                        break
+                    else:
+                        time.sleep(1)
+    except Exception, e:
+        print("174 lines error")
+        print e.message
 
 def save_to_mysql():
     num = 0
@@ -173,36 +186,50 @@ def save_to_mysql():
             try:
                 save_num += 1
                 load_url = queue.get()
-                save_url = 'insert ignore into pic_pexels(load_url,img_id) values(%s,%s)'
-                params = [load_url,load_url.split("https://images.pexels.com/photos/")[1].split("/")[0]]
+                # save_url = 'insert ignore into pic_pexels(load_url,img_id) values(%s,%s)'
+                save_url = 'insert ignore into pic_pexels(load_url,img_id,sorts) values(%s,%s,%s)'
+                params = [load_url[0],load_url[0].split("https://images.pexels.com/photos/")[1].split("/")[0],load_url[1]]
                 mysql.cud(save_url,params=params)
                 print(str(save_num) + "储存结束")
-            except:
-                pass
+            except Exception,e:
+                print "192 error"
+                print e.message
         else:
             time.sleep(15)
             num += 1
             if num > 5:
-                print("存储错误，网络超时")
+                print("存储结束或网络超时")
                 exit()
 
 def loads():
     color = color_queue.get()
     maxnum = get_maxnum(color)
+    color_num = 0
+    while not maxnum:
+        maxnum = get_maxnum(color)
+        color_num += 1
+        time.sleep(1)
+        if color_num > 10:
+            maxnum = 5
+            break
+    print color + "maxnum : " + str(maxnum)
     url = ''
     for num in range(1,maxnum+1):
         time.sleep(1)
         print(color + " : " + str(num))
         if num == 1:
-            url = 'https://www.pexels.com/search/color:%20' + color + '/'
-            get_first_page(url)
+            # url = 'https://www.pexels.com/search/color:%20' + color + '/'
+            url = "https://www.pexels.com/search/" + color + "/"
+            get_first_page(url,color)
         elif num == 2:
-            url = 'https://www.pexels.com/search/color:%20' + color + '/?page=2&format=js&seed=2019-01-16%2008:39:17%20+0000'
-            get_second_end_page(url)
+            # url = 'https://www.pexels.com/search/color:%20' + color + '/?page=2&format=js&seed=2019-01-16%2008:39:17%20+0000'
+            url = "https://www.pexels.com/search/" + color + "/?page=2&format=js&seed=2019-01-17%2009:57:27%20+0000"
+            get_second_end_page(url,color)
         else:
-            url = 'https://www.pexels.com/search/color:%20' + color + '/?page=' + str(num) + '&seed=2019-01-16+08%3A39%3A17++0000&format=js&seed=2019-01-16%2008:39:17%20+0000'
-            get_second_end_page(url)
-        print(color + " : " + str(num) + "结束")
+            # url = 'https://www.pexels.com/search/color:%20' + color + '/?page=' + str(num) + '&seed=2019-01-16+08%3A39%3A17++0000&format=js&seed=2019-01-16%2008:39:17%20+0000'
+            url = "https://www.pexels.com/search/" + color + "/?page=" + str(num) + "&seed=2019-01-17+09%3A57%3A27++0000&format=js&seed=2019-01-17%2009:57:27%20+0000"
+            get_second_end_page(url,color)
+        print(color + " : " + str(num) + "over")
 
 def main():
     # 按颜色爬取
@@ -212,12 +239,14 @@ def main():
     # 按分类爬取
     color_lists = sort()
     for color in color_lists:
+        # print color
         color_queue.put(color)
         color_Thread = threading.Thread(target=loads)
-        print color
+        time.sleep(0.2)
         color_Thread.start()
         # break
 
+    print("开始存数据")
     save_Thread = threading.Thread(target=save_to_mysql)
     save_Thread.start()
     print("主线程在这")
