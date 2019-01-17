@@ -10,9 +10,17 @@ import json
 import Queue
 import requests
 import re
+import io
 
 queue = Queue.Queue(maxsize=200)
 color_queue = Queue.Queue(maxsize=1)
+
+def sort():
+    sort_list = []
+    f = io.open("pic_pex_sorts.txt", "r")
+    for sort in f.readlines():
+        sort_list.append(sort.replace("\n", ""))
+    return sort_list
 
 def headers():
     headers = [
@@ -197,8 +205,12 @@ def loads():
         print(color + " : " + str(num) + "结束")
 
 def main():
-    color_lists = ["red", "orange", "yellow", "green", "turquoise", "blue", "violet", "pink", "brown", "black", "gray",
-                   "white"]
+    # 按颜色爬取
+    # color_lists = ["red", "orange", "yellow", "green", "turquoise", "blue", "violet", "pink", "brown", "black", "gray",
+    #                "white"]
+
+    # 按分类爬取
+    color_lists = sort()
     for color in color_lists:
         color_queue.put(color)
         color_Thread = threading.Thread(target=loads)
