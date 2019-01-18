@@ -1,0 +1,32 @@
+网址： https://unsplash.com/
+
+
+获取分类：
+    网址：https://unsplash.com/explore
+    xpath：//div[@class='mjpGu _2sCnE PrOBO']//a[@class='_3YOzB']/@href
+
+获取图片信息：https://unsplash.com/napi/search/photos?query=nature&xp=&per_page=20&page=1
+
+下载url：https://unsplash.com/photos/cssvEZacHvQ/download?force=true
+
+CREATE TABLE `pic_unsplash` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `img_id` varchar(200) DEFAULT NULL,
+  `created_at` varchar(200) DEFAULT NULL,
+  `updated_at` varchar(300) DEFAULT NULL,
+  `width` int(11) DEFAULT NULL,
+  `height` int(11) DEFAULT NULL,
+  `color` varchar(200) DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `urls_raw` varchar(350) DEFAULT NULL,
+  `urls_full` varchar(350) DEFAULT NULL,
+  `urls_regular` varchar(350) DEFAULT NULL,
+  `urls_small` varchar(350) DEFAULT NULL,
+  `urls_thumb` varchar(350) DEFAULT NULL,
+  `download_link` varchar(350) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `img_id` (`img_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
+
+
