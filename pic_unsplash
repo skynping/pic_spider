@@ -16,7 +16,7 @@ CREATE TABLE `pic_unsplash` (
   `updated_at` varchar(300) DEFAULT NULL,
   `width` int(11) DEFAULT NULL,
   `height` int(11) DEFAULT NULL,
-  `color` varchar(200) DEFAULT NULL,
+  `color_` varchar(200) DEFAULT NULL,
   `description` varchar(500) DEFAULT NULL,
   `urls_raw` varchar(350) DEFAULT NULL,
   `urls_full` varchar(350) DEFAULT NULL,
@@ -24,9 +24,20 @@ CREATE TABLE `pic_unsplash` (
   `urls_small` varchar(350) DEFAULT NULL,
   `urls_thumb` varchar(350) DEFAULT NULL,
   `download_link` varchar(350) DEFAULT NULL,
+  `likes` int(11) DEFAULT NULL,
+  `user_name` varchar(200) DEFAULT NULL,
+  `photo_tags` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `img_id` (`img_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 
+https://unsplash.com/napi/search/photos?query=vacation&xp=&per_page=20&page=5
 
+https://unsplash.com/napi/search/photos?query=cake&xp=&per_page=20&page=4
+
+https://images.unsplash.com/photo-1527030280862-64139fba04ca?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&dl=daniel-dinuzzo-676370-unsplash.jpg
+
+https://images.unsplash.com/photo-1527030280862-64139fba04ca?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb
+
+img_id, created_at, updated_at, width, height, color_, description, urls_raw,urls_full, urls_regular, urls_small, urls_thumb, download_link, likes, user_name,photo_tags
