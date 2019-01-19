@@ -130,6 +130,7 @@ def headers():
 def get_second_end_page(url,color):
     # page_content = requests.get(url, headers=headers())
     try:
+        time.sleep(0.5)
         page_content = requests.get(url, headers=headers())
         if page_content.status_code == 200:
             text =  page_content.text

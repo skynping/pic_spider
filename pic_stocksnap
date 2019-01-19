@@ -49,7 +49,7 @@ CREATE TABLE `pic_stocksnap` (
   `favorites` int(11) DEFAULT NULL,
   `img_width` int(11) DEFAULT NULL,
   `img_height` int(11) DEFAULT NULL,
-  `downloaded` bool DEFAULT false,
+  `sorts` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `img_id` (`img_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
