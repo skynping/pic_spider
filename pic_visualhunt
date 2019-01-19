@@ -1,0 +1,26 @@
+官网：https://visualhunt.com/popular/
+
+title: //div[@class='Collage vh-Collage-items vh-Collage-items--1024']/div[@class='vh-Collage-item']/a[@class='vh-Collage-itemContainer']/@title
+
+id://div[@class='Collage vh-Collage-items vh-Collage-items--1024']/div[@class='vh-Collage-item']/a[@class='vh-Collage-itemContainer']/@href
+
+load_url: //div[@class='Collage vh-Collage-items vh-Collage-items--1024']/div[@class='vh-Collage-item']/a[@class='vh-Collage-itemContainer']/img/@src
+
+
+
+/photo/488/close-up-of-speedometer-in-vehicle-interior/
+
+https://visualhunt.com/photos/1/close-up-of-speedometer-in-vehicle-interior.jpg?s=s
+
+https://visualhunt.com/photos/1/close-up-of-speedometer-in-vehicle-interior.jpg
+
+
+CREATE TABLE `pic_visualhunt` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `img_id` varchar(200) DEFAULT NULL,
+  `download_link` varchar(350) DEFAULT NULL,
+  `title` varchar(350) DEFAULT NULL,
+  `color` varchar(350) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `img_id` (`img_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
